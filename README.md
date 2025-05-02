@@ -1,6 +1,6 @@
 # 🎥 Video to Meeting Notes – Automated Transcript + Summary Pipeline
 
-This project automatically transcribes videos and generates structured meeting notes using Amazon Transcribe and Claude 3.5 Sonnet (via Amazon Bedrock).
+This infrastructure automatically transcribes videos and generates structured meeting notes using Amazon Transcribe and Claude 3.5 Sonnet (via Amazon Bedrock).
 
 ---
 
@@ -32,6 +32,7 @@ This project automatically transcribes videos and generates structured meeting n
 
 ### 🚀 One-Time Setup: How to Deploy
 
+Pull / Download the CFT files to your desired folder on your local machine.
 Run the following from your terminal (requires AWS CLI access):
 
 ```bash
@@ -59,7 +60,7 @@ aws cloudformation deploy \
   --region us-west-2
 ```
 
-🧠 Note: You need AWS CLI access and the right IAM permissions to deploy.
+🧠 Note: You need AWS CLI access and the right IAM permissions to deploy the infrastructure.
 
 ---
 
