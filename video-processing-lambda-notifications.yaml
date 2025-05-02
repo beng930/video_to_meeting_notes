@@ -71,7 +71,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:PutBucketNotification
-                Resource: arn:aws:s3:::video-bucket-for-transcribe-summary
+                Resource: arn:aws:s3:::video-upload-bucket-input
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
