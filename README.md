@@ -21,12 +21,14 @@ This tool automatically transcribes and summarizes video recordings into clean, 
 * ✅ Claude 3.5 (summarizes the text)
 * ✅ Summary saved to a second S3 bucket
 
+![ChatGPT Image May 1, 2025, 08_47_57 PM](https://github.com/user-attachments/assets/1f336463-6075-47a0-8274-01b0fb2dd995)
+
 (No technical actions needed after deployment — just upload a video.)
 
 📦 One-Time Setup: How to Deploy
 
 You only need to run this once. Here's how to set it up:
-
+```
 bash
 
 # Step 1: Deploy core infrastructure
@@ -49,7 +51,7 @@ aws cloudformation deploy \
     UploadBucketName=video-upload-bucket-input \
     LambdaArn=$LAMBDA_ARN \
   --region us-west-2
-
+```
 Download 
 🧠 Note: You need AWS CLI access and the right IAM permissions to deploy.
 
