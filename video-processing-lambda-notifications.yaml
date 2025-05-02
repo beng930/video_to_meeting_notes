@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Attaches S3 notification to existing bucket to trigger Lambda on new video upload.
+
+Parameters:
+  LambdaArn:
+    Type: String
+    Description: ARN of the already-deployed Lambda function
+  UploadBucketName:
+    Type: String
+    Description: Name of the S3 bucket where videos are uploaded
+
+Resources:
+
+  NotificationLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ConfigureS3Notification
+      Runtime: python3.11
+      Handler: index.handler
+      Timeout: 60
+      Role: !GetAtt NotificationLambdaRole.Arn
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import cfnresponse
+
+          def handler(event, context):
+              try:
+                  props = event['ResourceProperties']
+                  bucket = props['BucketName']
+                  lambda_arn = props['LambdaArn']
+
+                  print(f"[INFO] Received BucketName: {bucket}")
+                  print(f"[INFO] Received LambdaArn: {lambda_arn}")
+
+                  s3 = boto3.client('s3')
+                  s3.put_bucket_notification_configuration(
+                      Bucket=bucket,
+                      NotificationConfiguration={
+                          'LambdaFunctionConfigurations': [
+                              {
+                                  'LambdaFunctionArn': lambda_arn,
+                                  'Events': ['s3:ObjectCreated:*']
+                              }
+                          ]
+                      }
+                  )
+
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+              except Exception as e:
+                  print(f"[ERROR] {str(e)}")
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {'Message': str(e)})
+
+  NotificationLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ConfigureS3NotificationRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AllowS3NotificationUpdate
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutBucketNotification
+                Resource: arn:aws:s3:::video-bucket-for-transcribe-summary
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  AttachNotification:
+    Type: Custom::S3Notification
+    Properties:
+      ServiceToken: !GetAtt NotificationLambda.Arn
+      BucketName: !Ref UploadBucketName
+      LambdaArn: !Ref LambdaArn
